@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::-webkit-scrollbar-thumb {
+  background-color: #f97316 !important;
+  border-radius: 100px !important;
+}
+
+::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+.required::placeholder {
+  color: red;
+}
+
+
+.required option:first-child {
+  color: red;
+}
+
+select[required] option:nth-child(1) {
+  background: red;
+}
+
+select[required] option:first-of-type {
+  color: red;
+}
+
+select[required] option:first-child {
+  color: red;
+}
+
+select[name="currency_id"] option:nth-child(1) {
+  background: red;
+}
+
+select[required] option:first-of-type {
+   color: red;
+ }
