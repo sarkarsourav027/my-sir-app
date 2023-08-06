@@ -3,12 +3,11 @@ import paypal from '@paypal/checkout-server-sdk'
 
 export default async function Handler(req, res) {
 
-    if(req.method != "POST")
+    if(req.method !== "POST")
         return res.status(404).json({success: false, message: "Not Found"})
 
     if(!req.body.subscriptionType || !req.body.user_id)
         return res.status(400).json({success: false, message: "Please Provide Subscription Type And User ID"})
-
 
     try{
 

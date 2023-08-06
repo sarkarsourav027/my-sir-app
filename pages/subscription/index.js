@@ -1,6 +1,5 @@
 import AppLayout from "@/components/Layouts/AppLayout";
-import React, {useState} from "react";
-import Image from "next/image";
+import React from "react";
 import {getSession, useSession} from "next-auth/react";
 import {PayPalButtons, PayPalScriptProvider} from "@paypal/react-paypal-js";
 import axios from "axios";
@@ -86,9 +85,7 @@ export default function Subscription() {
 
                                         if(response.status) {
 
-                                            // return actions.resolve()
                                             if(response.data.subscription.length===0){
-                                                setSubscriptionType('monthly')
                                                 return actions.resolve()
                                             }else {
                                                 toast.error("You have already subscribed!")
@@ -101,7 +98,8 @@ export default function Subscription() {
                                     }}
                                     createSubscription = {async(data, actions) => {
                                             return actions.subscription.create({
-                                            'plan_id': process.env.NEXT_PUBLIC_PAYPAL_SUBSCRIPTION_MONTHLY
+                                            'plan_id': process.env.NEXT_PUBLIC_PAYPAL_SUBSCRIPTION_MONTHLY,
+                                                "custom_id": `${session.user.user_id}|monthly|com.sirapp.onemonth|${session.user.access_token}`,
                                         });
                                     }}
                                     onApprove={async (data, actions) => {
@@ -138,9 +136,44 @@ export default function Subscription() {
                                     </div>
                                 </div>
                             </div>
-                            <button className="bg-c3 text-white px-12 py-3 rounded-full mt-8">
-                                Start Now
-                            </button>
+                            <div className="mt-8">
+                                <PayPalButtons
+                                    style={{layout: "horizontal",shape:   'rect',tagline :false,label:'buynow'}}
+                                    onClick={async (data, actions) => {
+
+                                        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}subscription/get`, {
+                                            method: 'POST',
+                                            headers: {"Access-Token": session.user.access_token}
+                                        }).then((res) => {
+                                            return res.json()
+                                        })
+
+                                        if(response.status) {
+
+                                            if(response.data.subscription.length===0){
+                                                return actions.resolve()
+                                            }else {
+                                                toast.error("You have already subscribed!")
+                                                await router.push("/subscription")
+                                                return actions.reject()
+                                            }
+                                        }
+                                        return actions.resolve()
+
+                                    }}
+                                    createSubscription = {async(data, actions) => {
+                                        return actions.subscription.create({
+                                            'plan_id': process.env.NEXT_PUBLIC_PAYPAL_SUBSCRIPTION_YEARLY,
+                                            "custom_id": `${session.user.user_id}|yearly|com.sir.oneyear|${session.user.access_token}`,
+                                        });
+                                    }}
+                                    onApprove={async (data, actions) => {
+                                        // let response = await paypalCaptureOrder(data.orderID)
+                                        console.log(data)
+                                        console.log(actions)
+                                    }}
+                                />
+                            </div>
                             <div className="bg-gradient-to-tr from-orange-500 to-orange-400 text-white absolute rounded-tl top-0 left-0 py-2 px-4">
                                 Save 58% | Flash Sale
                             </div>
@@ -184,9 +217,7 @@ export default function Subscription() {
 
                                         if(response.status) {
 
-                                            // return actions.resolve()
                                             if(response.data.subscription.length===0){
-                                                setSubscriptionType('monthly')
                                                 return actions.resolve()
                                             }else {
                                                 toast.error("You have already subscribed!")
@@ -198,7 +229,7 @@ export default function Subscription() {
 
                                     }}
                                     createOrder={async (data, actions) => {
-                                        let response = await paypalCreateOrder(data,actions,{subscriptionType:"monthly"})
+                                        let response = await paypalCreateOrder(data,actions,{subscriptionType:"lifetime"})
                                         return response.data
                                     }}
                                     onApprove={async (data, actions) => {
